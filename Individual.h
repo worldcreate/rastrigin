@@ -15,6 +15,8 @@ public:
 	void init();
 	void print();
 	static bool Comparator(const Individual*,const Individual*);
+	void setFitness(double);
+	double getFitness();
 	~Individual();
 private:
 	vector<char> bit;

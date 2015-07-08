@@ -37,6 +37,14 @@ void Individual::print(){
 	printf("\n");
 }
 
+void Individual::setFitness(double a_Fitness){
+	m_Fitness=a_Fitness;
+}
+
+double Individual::getFitness(){
+	return m_Fitness;
+}
+
 Individual::~Individual(){
 
 }
