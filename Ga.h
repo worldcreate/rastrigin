@@ -14,15 +14,15 @@ public:
 	void printList();
 	void Finallize();
 	void printFitness();
+	static double decode(const vector<char>&);
+	double convert(double);
+	void evaluate(Individual *);
 	~Ga();
 private:
-	void evaluate(Individual *);
 	void selectSurvive(vector<Individual*>&);
 	void selectReproduction(vector<Individual*>&);
 	void crossOver(vector<Individual*>&);
 	void mutation(Individual*);
-	double convert(double);
-	static double decode(const vector<char>&);
 	vector<Individual*> m_Population;
 	int m_PopulationSize;
 	int m_Dimension;

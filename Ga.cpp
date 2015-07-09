@@ -90,12 +90,6 @@ void Ga::selectReproduction(vector<Individual*> &family){
 void Ga::crossOver(vector<Individual*> &family){
 	Individual *p1=family[0];
 	Individual *p2=family[1];
-	#ifdef DEBUG
-		cout<<"p1"<<endl;
-		p1->print();
-		cout<<"p2"<<endl;
-		p2->print();
-	#endif
 	for(int i=0;i<m_ChildNum;i+=2){
 		Individual *c1=new Individual(m_Dimension,m_BitSize);
 		Individual *c2=new Individual(m_Dimension,m_BitSize);
@@ -111,12 +105,6 @@ void Ga::crossOver(vector<Individual*> &family){
 				(*c2)[i]=(*p1)[i];
 			}
 		}
-		#ifdef DEBUG
-			cout<<"c1"<<endl;
-			c1->print();
-			cout<<"c2"<<endl;
-			c2->print();
-		#endif
 		mutation(c1);
 		mutation(c2);
 		evaluate(c1);
@@ -130,28 +118,19 @@ void Ga::selectSurvive(vector<Individual*> &family){
 	sort(family.begin(),family.end(),Individual::Comparator);
 	m_Population.push_back(family[0]);
 	m_Population.push_back(family[1]);
+
 	for(int i=2;i<family.size();i++){
 		delete(family[i]);
 	}
 }
 
 void Ga::evaluate(Individual *individual){
-	#ifdef DEBUG
-		cout<<"============================"<<endl;
-		individual->print();
-	#endif
 	vector<double> x(m_Dimension);
 	for(int i=0;i<m_Dimension;i++){
 		vector<char> bit(m_BitSize);
 		for(int j=0;j<m_BitSize;j++){
 			bit[j]=(*individual)[j+i*m_BitSize];
 		}
-		#ifdef DEBUG
-			cout<<"bit["<<i<<"]=";
-			for(int k=0;k<bit.size();k++)
-				printf("%d",bit[k]);
-			cout<<endl;
-		#endif
 		x[i]=decode(bit);
 		x[i]=convert(x[i]);
 		#ifdef DEBUG
