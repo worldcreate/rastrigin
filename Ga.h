@@ -12,17 +12,20 @@ public:
 	void Initialize();
 	void execute();
 	void printList();
-	void Finallize();
 	void printFitness();
-	static double decode(const vector<char>&);
-	double convert(double);
+	void Finallize();
 	void evaluate(Individual *);
+	int roulette(vector<Individual*>&);
 	~Ga();
 private:
+	double rastrigin(vector<double>&);
+	double convert(double);
+	static double decode(const vector<char>&);
 	void selectSurvive(vector<Individual*>&);
 	void selectReproduction(vector<Individual*>&);
 	void crossOver(vector<Individual*>&);
 	void mutation(Individual*);
+	double max(const vector<Individual*>&);
 	vector<Individual*> m_Population;
 	int m_PopulationSize;
 	int m_Dimension;

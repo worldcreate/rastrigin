@@ -43,7 +43,7 @@ void Ga::Initialize(){
 }
 
 void Ga::printList(){
-	for(int i=0;i<m_PopulationSize;i++){
+	for(int i=0;i<m_Population.size();i++){
 		m_Population[i]->print();
 	}
 }
@@ -57,6 +57,58 @@ void Ga::execute(){
 		selectSurvive(family);
 		printFitness();
 	}
+}
+
+int Ga::roulette(vector<Individual*>& family){
+	#ifdef DEBUG
+		cout<<"========================="<<endl;
+	#endif
+	double fitSum=0;
+	double store=0;
+	double maxFit=0;
+
+	maxFit=max(family);
+
+	#ifdef DEBUG
+		cout<<"maxFit="<<maxFit<<endl;
+	#endif
+
+	for(int i=0;i<family.size();i++){
+		fitSum+=maxFit-family[i]->getFitness()+1;
+		#ifdef DEBUG
+			cout<<maxFit-family[i]->getFitness()+1<<endl;
+		#endif
+	}
+
+	int index=0;
+	int r=Util::getRand(0,fitSum);
+	#ifdef DEBUG
+		cout<<"r="<<r<<endl;
+		cout<<"fitSum="<<fitSum<<endl;
+	#endif
+	for(int i=0;i<family.size();i++){
+		#ifdef DEBUG
+			cout<<"store="<<store<<endl;
+		#endif
+		store+=maxFit-family[i]->getFitness()+1;
+		if(store>=r){
+			index=i;
+		}
+	}
+	#ifdef DEBUG
+		cout<<"index="<<index<<endl;
+	#endif
+	return index;
+}
+
+double Ga::max(const vector<Individual*>& vec){
+	double max=0;
+	for(int i=0;i<vec.size();i++){
+		if(max<vec[i]->getFitness()){
+			max=vec[i]->getFitness();
+		}
+	}
+	return max;
 }
 
 void Ga::printFitness(){
@@ -74,32 +126,41 @@ void Ga::printFitness(){
 		variance+=pow((m_Population[i]->getFitness()-ave),2);
 	}
 	variance/=m_PopulationSize;
-	cout<<"min="<<min<<",variance="<<variance<<endl;
+	cout<<"min="<<min<<",ave="<<ave<<",variance="<<variance<<endl;
 }
 
 void Ga::selectReproduction(vector<Individual*> &family){
-	random_shuffle(m_Population.begin(),m_Population.end());
+	//random_shuffle(m_Population.begin(),m_Population.end());
 	int r=Util::getRand(0,m_Population.size()-1);
+	#ifdef DEBUG
+		printList();
+	#endif
 	family.push_back(m_Population[r]);
 	Util::removeVector(m_Population,r);
 	r=Util::getRand(0,m_Population.size()-1);
 	family.push_back(m_Population[r]);
 	Util::removeVector(m_Population,r);
+	#ifdef DEBUG
+		cout<<"================"<<endl;
+		printList();
+	#endif
 }
 
 void Ga::crossOver(vector<Individual*> &family){
 	Individual *p1=family[0];
 	Individual *p2=family[1];
+
 	for(int i=0;i<m_ChildNum;i+=2){
 		Individual *c1=new Individual(m_Dimension,m_BitSize);
 		Individual *c2=new Individual(m_Dimension,m_BitSize);
 		c1->init();
 		c2->init();
 
-		for(int i=0;i<m_BitSize;i++){
+		for(int i=0;i<m_BitSize*m_Dimension;i++){
 			if(Util::getRand(0,1)){
 				(*c1)[i]=(*p1)[i];
 				(*c2)[i]=(*p2)[i];
+
 			}else{
 				(*c1)[i]=(*p2)[i];
 				(*c2)[i]=(*p1)[i];
@@ -117,11 +178,20 @@ void Ga::crossOver(vector<Individual*> &family){
 void Ga::selectSurvive(vector<Individual*> &family){
 	sort(family.begin(),family.end(),Individual::Comparator);
 	m_Population.push_back(family[0]);
-	m_Population.push_back(family[1]);
+	Util::removeVector(family,0);
 
-	for(int i=2;i<family.size();i++){
+	int r=roulette(family);
+	m_Population.push_back(family[r]);
+	Util::removeVector(family,r);
+
+	for(int i=0;i<family.size();i++){
 		delete(family[i]);
 	}
+
+	#ifdef DEBUG
+		cout<<"crossover"<<endl;
+		printList();
+	#endif
 }
 
 void Ga::evaluate(Individual *individual){
@@ -133,24 +203,25 @@ void Ga::evaluate(Individual *individual){
 		}
 		x[i]=decode(bit);
 		x[i]=convert(x[i]);
-		#ifdef DEBUG
-			cout<<x[i]<<endl;
-		#endif
 	}
-	double fit=10*m_Dimension;
-	for(int i=0;i<m_Dimension;i++){
-		fit+=(x[i]*x[i])-(10*cos(2*M_PI*x[i]));
-	}
-	individual->setFitness(fit);
+	individual->setFitness(rastrigin(x));
 }
 
 void Ga::mutation(Individual *individual){
-	for(int i=0;i<m_BitSize;i++){
+	for(int i=0;i<m_BitSize*m_Dimension;i++){
 		int r = Util::getRand(1, 100);
 		if (r>m_mRate)
 			continue;
 		(*individual)[i] = !(*individual)[i];
 	}
+}
+
+double Ga::rastrigin(vector<double> &x){
+	double fit=10*m_Dimension;
+	for(int i=0;i<m_Dimension;i++){
+		fit+=(x[i]*x[i])-(10*cos(2*M_PI*x[i]));
+	}
+	return fit;
 }
 
 double Ga::convert(double src){

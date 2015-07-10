@@ -1,8 +1,10 @@
 #include "Test.h"
 #include "Individual.h"
 #include "Ga.h"
+#include "Util.h"
 #include <iostream>
 #include <cmath>
+#include <cstdio>
 
 using namespace std;
 
@@ -11,21 +13,19 @@ Test::Test(){
 }
 
 void Test::test(int argc,char** argv){
-	Individual ind;
-	ind.init();
-	char c[10]={
-		1,1,1,1,1,1,1,1,1,0
-	};
-	for(int i=0;i<10;i++){
-		for(int j=0;j<10;j++){
-			ind[i*10+j]=c[j];
-		}
-	}
-	ind.print();
+	Util::setSeed(200);
 	Ga ga(argc,argv);
-	ga.evaluate(&ind);
-	cout<<ind.getFitness()<<endl;
+	vector<Individual*> vec;
+	for(int i=0;i<10;i++){
+		vec.push_back(new Individual());
+		vec[i]->init();
+		ga.evaluate(vec[i]);
+	}
+	for(int i=0;i<10;i++){
+		vec[i]->print();
+	}
 
+	ga.roulette(vec);
 }
 
 Test::~Test(){

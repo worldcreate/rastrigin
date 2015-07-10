@@ -34,6 +34,7 @@ void Individual::print(){
 	for(int i=0;i<m_BitSize*m_Dimension;i++){
 		printf("%d",bit[i]);
 	}
+	printf(":%lf",m_Fitness);
 	printf("\n");
 }
 

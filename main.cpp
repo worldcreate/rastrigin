@@ -32,9 +32,10 @@ int main(int argc,char **argv){
 	}
 
 	for(int i=0;i<trial;i++){
-		Util::setSeed(seed);
+		Util::setSeed(seed+i);
 		Ga ga(argc,argv);
 		ga.Initialize();
 		ga.execute();
+		ga.printList();
 	}
 }
